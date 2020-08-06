@@ -1,0 +1,21 @@
+{
+    "name": "oleksandr-andrushchenko/test-calculator",
+    "require-dev": {
+        "phpunit/phpunit": "^8.5"
+    },
+    "authors": [
+        {
+            "name": "Oleksandr Andrushchenko",
+            "email": "alex.snowgirl@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {"Calculator\\": "src/"}
+    },
+    "require": {
+        "php": "^7.2",
+        "ext-json": "*",
+        "netresearch/jsonmapper": "^3.0",
+        "monolog/monolog": "^2.1"
+    }
+}
