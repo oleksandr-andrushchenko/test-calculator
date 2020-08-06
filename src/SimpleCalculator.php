@@ -90,7 +90,7 @@ class SimpleCalculator implements CalculatorInterface
      * @throws InvalidBinDataException
      * @throws InvalidRateDataException
      */
-    protected function getCommission(Transaction $transaction): float
+    private function getCommission(Transaction $transaction): float
     {
         $country = $this->binProvider->getCountry($transaction->getBin());
         $rate = $this->rateProvider->getRate($transaction->getCurrency());
@@ -106,7 +106,7 @@ class SimpleCalculator implements CalculatorInterface
      * @param float|null $rate
      * @return float
      */
-    protected function getFixedAmount(Transaction $transaction, float $rate = null): float
+    private function getFixedAmount(Transaction $transaction, float $rate = null): float
     {
         if (!$rate) {
             return $transaction->getAmount();
