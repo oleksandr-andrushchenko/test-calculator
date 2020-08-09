@@ -92,10 +92,10 @@ class SimpleCalculator implements CalculatorInterface
      */
     private function getCommission(Transaction $transaction): float
     {
-        $country = $this->binProvider->getCountry($transaction);
-        $rate = $this->rateProvider->getRate($transaction);
+        $fixedAmount = $this->getFixedAmount($transaction);
 
-        $fixedAmount = $this->getFixedAmount($transaction, $rate);
+        $country = $this->binProvider->getCountry($transaction);
+
         $coefficient = $country->isEu() ? 0.01 : 0.02;
 
         return $fixedAmount * $coefficient;
@@ -103,11 +103,13 @@ class SimpleCalculator implements CalculatorInterface
 
     /**
      * @param Transaction $transaction
-     * @param float|null $rate
      * @return float
+     * @throws InvalidRateDataException
      */
-    private function getFixedAmount(Transaction $transaction, float $rate = null): float
+    private function getFixedAmount(Transaction $transaction): float
     {
+        $rate = $this->rateProvider->getRate($transaction);
+
         if (!$rate) {
             return $transaction->getAmount();
         }
