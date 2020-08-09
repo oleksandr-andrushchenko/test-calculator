@@ -2,6 +2,7 @@
 
 namespace Calculator\Provider;
 
+use Calculator\Model\Transaction;
 use Calculator\Provider\Exception\InvalidRateDataException;
 
 /**
@@ -11,9 +12,9 @@ use Calculator\Provider\Exception\InvalidRateDataException;
 interface RateProviderInterface
 {
     /**
-     * @param string $currency
+     * @param Transaction $transaction
      * @return float|null
      * @throws InvalidRateDataException
      */
-    public function getRate(string $currency): ?float;
+    public function getRate(Transaction $transaction): ?float;
 }

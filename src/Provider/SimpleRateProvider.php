@@ -2,6 +2,7 @@
 
 namespace Calculator\Provider;
 
+use Calculator\Model\Transaction;
 use Calculator\Provider\DTO\RatesDTO;
 use Calculator\Provider\Exception\InvalidRateDataException;
 use Calculator\Provider\Traits\JsonMapperHolder;
@@ -19,7 +20,7 @@ class SimpleRateProvider implements RateProviderInterface
     /**
      * @inheritDoc
      */
-    public function getRate(string $currency): ?float
+    public function getRate(Transaction $transaction): ?float
     {
         $endpoint = sprintf(self::SOURCE_ENDPOINT);
 
@@ -34,6 +35,6 @@ class SimpleRateProvider implements RateProviderInterface
         /** @var RatesDTO $dto */
         $dto = $this->jsonMapper->map($data, new RatesDTO());
 
-        return $dto->rates[$currency] ?? null;
+        return $dto->rates[$transaction->getCurrency()] ?? null;
     }
 }

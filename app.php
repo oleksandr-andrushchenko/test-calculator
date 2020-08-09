@@ -34,9 +34,9 @@ $container = new SimpleContainer([
         $handler = new StreamHandler('php://stdout');
 
         $formatter = new LineFormatter("%message%" . PHP_EOL);
+        $formatter->allowInlineLineBreaks();
         $handler->setFormatter($formatter);
 
-        $handler->getFormatter()->allowInlineLineBreaks();
         $logger->pushHandler($handler);
 
         return $logger;

@@ -3,6 +3,7 @@
 namespace Calculator\Provider;
 
 use Calculator\Model\Country;
+use Calculator\Model\Transaction;
 use Calculator\Provider\Exception\InvalidBinDataException;
 
 /**
@@ -12,9 +13,9 @@ use Calculator\Provider\Exception\InvalidBinDataException;
 interface BinProviderInterface
 {
     /**
-     * @param int $bin
+     * @param Transaction $transaction
      * @return Country
      * @throws InvalidBinDataException
      */
-    public function getCountry(int $bin): Country;
+    public function getCountry(Transaction $transaction): Country;
 }

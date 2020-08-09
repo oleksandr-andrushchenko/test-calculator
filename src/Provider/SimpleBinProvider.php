@@ -3,6 +3,7 @@
 namespace Calculator\Provider;
 
 use Calculator\Model\Country;
+use Calculator\Model\Transaction;
 use Calculator\Provider\DTO\BinDTO;
 use Calculator\Provider\Exception\InvalidBinDataException;
 
@@ -21,9 +22,9 @@ class SimpleBinProvider implements BinProviderInterface
     /**
      * @inheritDoc
      */
-    public function getCountry(int $bin): Country
+    public function getCountry(Transaction $transaction): Country
     {
-        $endpoint = sprintf(self::SOURCE_ENDPOINT, $bin);
+        $endpoint = sprintf(self::SOURCE_ENDPOINT, $transaction->getBin());
 
         $json = file_get_contents($endpoint);
 

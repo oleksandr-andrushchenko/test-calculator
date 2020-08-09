@@ -1,12 +1,12 @@
 <?php
 
 use Calculator\Model\Country;
+use Calculator\Provider\BinProviderInterface;
+use Calculator\Provider\DataProviderInterface;
+use Calculator\Provider\RateProviderInterface;
 use Calculator\SimpleCalculator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Calculator\Provider\SimpleBinProvider;
-use Calculator\Provider\SimpleRateProvider;
-use Calculator\Provider\SimpleDataProvider;
 use Calculator\Model\Transaction;
 use Psr\Log\NullLogger;
 
@@ -23,34 +23,34 @@ class SimpleCalculatorTest extends TestCase
         return [
             [
                 [
-                    new Transaction('EUR', 100.00, 45717360),
-                    new Transaction('USD', 50.00, 516793),
-                    new Transaction('JPY', 10000.00, 45417360),
-                    new Transaction('USD', 130.00, 41417360),
-                    new Transaction('GBP', 2000.00, 4745030),
+                    $t1 = new Transaction('EUR', 100.00, 45717360),
+                    $t2 = new Transaction('USD', 50.00, 516793),
+                    $t3 = new Transaction('JPY', 10000.00, 45417360),
+                    $t4 = new Transaction('USD', 130.00, 41417360),
+                    $t5 = new Transaction('GBP', 2000.00, 4745030),
                 ],
                 [
-                    45717360 => new Country('DK'),
-                    516793 => new Country('LT'),
-                    45417360 => new Country('JP'),
-                    41417360 => new Country('US'),
-                    4745030 => new Country('GB'),
+                    [$t1, new Country('DK')],
+                    [$t2, new Country('LT')],
+                    [$t3, new Country('JP')],
+                    [$t4, new Country('US')],
+                    [$t5, new Country('GB')],
                 ],
                 [
-                    ['EUR', 0.00],
-                    ['USD', 1.1854],
-                    ['JPY', 125.37],
-                    ['USD', 1.1854],
-                    ['GBP', 0.90265]
+                    [$t1, 1.00],
+                    [$t2, 1.1854],
+                    [$t3, 125.37],
+                    [$t4, 1.1854],
+                    [$t5, 0.90265],
                 ],
                 [
                     1,
                     0.42179854901299,
                     1.5952779771875,
                     2.1933524548676,
-                    44.313964438044
-                ]
-            ]
+                    44.313964438044,
+                ],
+            ],
         ];
     }
 
@@ -67,32 +67,34 @@ class SimpleCalculatorTest extends TestCase
         array $getRate,
         array $expectedCommissions
     ) {
-        /** @var MockObject|SimpleDataProvider $dataProvider */
-        $dataProvider = $this->createMock(SimpleDataProvider::class);
+        /** @var MockObject|DataProviderInterface $dataProvider */
+        $dataProvider = $this->createMock(DataProviderInterface::class);
 
         $dataProvider->method('getTransactions')->willReturn($getTransactions);
 
-        /** @var MockObject|SimpleBinProvider $binProvider */
-        $binProvider = $this->createMock(SimpleBinProvider::class);
+        /** @var MockObject|BinProviderInterface $binProvider */
+        $binProvider = $this->createMock(BinProviderInterface::class);
 
         $i = 0;
-        foreach ($getCountry as $bin => $country) {
+        foreach ($getCountry as $pair) {
+            [$transaction, $country] = $pair;
+
             $binProvider->expects($this->at($i++))
                 ->method('getCountry')
-                ->with($bin)
+                ->with($transaction)
                 ->willReturn($country);
         }
 
-        /** @var MockObject|SimpleRateProvider $rateProvider */
-        $rateProvider = $this->createMock(SimpleRateProvider::class);
+        /** @var MockObject|RateProviderInterface $rateProvider */
+        $rateProvider = $this->createMock(RateProviderInterface::class);
 
         $i = 0;
         foreach ($getRate as $pair) {
-            list($currency, $rate) = $pair;
+            [$transaction, $rate] = $pair;
 
             $rateProvider->expects($this->at($i++))
                 ->method('getRate')
-                ->with($currency)
+                ->with($transaction)
                 ->willReturn($rate);
         }
 
