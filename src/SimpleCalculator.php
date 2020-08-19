@@ -17,6 +17,10 @@ use Psr\Log\LoggerInterface;
  */
 class SimpleCalculator implements CalculatorInterface
 {
+    public const DEFAULT_BASE_CURRENCY = 'EUR';
+    public const DEFAULT_EU_COEFFICIENT = 0.01;
+    public const DEFAULT_NON_EU_COEFFICIENT = 0.02;
+
     /**
      * @var DataProviderInterface
      */
@@ -43,25 +47,41 @@ class SimpleCalculator implements CalculatorInterface
     private $baseCurrency;
 
     /**
-     * Calculator constructor.
+     * @var float
+     */
+    private $euCoefficient;
+
+    /**
+     * @var float
+     */
+    private $nonEuCoefficient;
+
+    /**
+     * SimpleCalculator constructor.
      * @param object|DataProviderInterface $dataProvider
      * @param object|BinProviderInterface $binProvider
      * @param object|RateProviderInterface $rateProvider
      * @param object|LoggerInterface $logger
      * @param string $baseCurrency
+     * @param float $euCoefficient
+     * @param float $nonEuCoefficient
      */
     public function __construct(
         DataProviderInterface $dataProvider,
         BinProviderInterface $binProvider,
         RateProviderInterface $rateProvider,
         LoggerInterface $logger,
-        string $baseCurrency = 'EUR'
+        string $baseCurrency = self::DEFAULT_BASE_CURRENCY,
+        float $euCoefficient = self::DEFAULT_EU_COEFFICIENT,
+        float $nonEuCoefficient = self::DEFAULT_NON_EU_COEFFICIENT
     ) {
         $this->dataProvider = $dataProvider;
         $this->binProvider = $binProvider;
         $this->rateProvider = $rateProvider;
         $this->logger = $logger;
         $this->baseCurrency = $baseCurrency;
+        $this->euCoefficient = $euCoefficient;
+        $this->nonEuCoefficient = $nonEuCoefficient;
     }
 
     /**
@@ -96,7 +116,7 @@ class SimpleCalculator implements CalculatorInterface
 
         $country = $this->binProvider->getCountry($transaction);
 
-        $coefficient = $country->isEu() ? 0.01 : 0.02;
+        $coefficient = $country->isEu() ? $this->euCoefficient : $this->nonEuCoefficient;
 
         return $fixedAmount * $coefficient;
     }

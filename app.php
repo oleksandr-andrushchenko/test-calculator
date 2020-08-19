@@ -6,6 +6,7 @@ use Calculator\CalculatorInterface;
 use Calculator\Container\ContainerInterface;
 use Calculator\Container\SimpleContainer;
 use Calculator\Provider\DataProviderInterface;
+use Calculator\Provider\Decorator\CeilingCommissionsCalculatorDecorator;
 use Calculator\Provider\SimpleDataProvider;
 use Calculator\Provider\BinProviderInterface;
 use Calculator\Provider\SimpleBinProvider;
@@ -51,21 +52,31 @@ $container = new SimpleContainer([
         return new SimpleRateProvider($container->get(JsonMapper::class));
     },
     CalculatorInterface::class => function (ContainerInterface $container, string $filename, string $currency) {
-        return new SimpleCalculator(
+        $calculator = new SimpleCalculator(
             $container->get(DataProviderInterface::class, $filename),
             $container->get(BinProviderInterface::class),
             $container->get(RateProviderInterface::class),
             $container->get(LoggerInterface::class),
             $currency
         );
+
+//        $calculator = new CeilingCommissionsCalculatorDecorator($calculator);
+
+        return $calculator;
     }
 ]);
 
-/** @var CalculatorInterface $calculator */
-$calculator = $container->get(CalculatorInterface::class, $argv[1], $argv[2] ?? 'EUR');
+/**
+ * @var LoggerInterface $logger
+ * @var CalculatorInterface $calculator
+ */
 
-/** @var LoggerInterface $logger */
 $logger = $container->get(LoggerInterface::class);
 
-$commissions = $calculator->getCommissions();
-$logger->info(implode(PHP_EOL, $commissions));
+$logger->info('Commissions:');
+$calculator = $container->get(CalculatorInterface::class, $argv[1], $argv[2] ?? 'EUR');
+$logger->info(implode(PHP_EOL, $calculator->getCommissions()));
+
+$logger->info('Ceiling Commissions:');
+$calculator = new CeilingCommissionsCalculatorDecorator($calculator);
+$logger->info(implode(PHP_EOL, $calculator->getCommissions()));

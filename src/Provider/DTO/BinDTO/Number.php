@@ -3,13 +3,18 @@
 namespace Calculator\Provider\DTO\BinDTO;
 
 /**
- * Class CountryDTO
+ * Class Number
  * @package Calculator\Provider\DTO\BinDTO
  */
-class CountryDTO
+class Number
 {
     /**
-     * @var string
+     * @var int
      */
-    public $alpha2;
+    public $length;
+
+    /**
+     * @var bool
+     */
+    public $luhn;
 }

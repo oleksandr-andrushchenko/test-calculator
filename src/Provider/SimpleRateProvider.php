@@ -5,7 +5,7 @@ namespace Calculator\Provider;
 use Calculator\Model\Transaction;
 use Calculator\Provider\DTO\RatesDTO;
 use Calculator\Provider\Exception\InvalidRateDataException;
-use Calculator\Provider\Traits\JsonMapperHolder;
+use JsonMapper;
 
 /**
  * Class SimpleRateProvider
@@ -13,14 +13,40 @@ use Calculator\Provider\Traits\JsonMapperHolder;
  */
 class SimpleRateProvider implements RateProviderInterface
 {
-    use JsonMapperHolder;
-
     private const SOURCE_ENDPOINT = 'https://api.exchangeratesapi.io/latest';
+
+    /**
+     * @var JsonMapper
+     */
+    private $jsonMapper;
+
+    /**
+     * SimpleRateProvider constructor.
+     * @param object|JsonMapper $jsonMapper
+     */
+    public function __construct(JsonMapper $jsonMapper)
+    {
+        $this->jsonMapper = $jsonMapper;
+    }
 
     /**
      * @inheritDoc
      */
     public function getRate(Transaction $transaction): ?float
+    {
+        $data = $this->getRatesDecodedJson();
+
+        /** @var RatesDTO $dto */
+        $dto = $this->jsonMapper->map($data, new RatesDTO());
+
+        return $dto->rates[$transaction->getCurrency()] ?? null;
+    }
+
+    /**
+     * @return mixed
+     * @throws InvalidRateDataException
+     */
+    protected function getRatesDecodedJson()
     {
         $endpoint = sprintf(self::SOURCE_ENDPOINT);
 
@@ -30,11 +56,6 @@ class SimpleRateProvider implements RateProviderInterface
             throw new InvalidRateDataException('Ooops! Invalid Rate Data');
         }
 
-        $data = json_decode($json);
-
-        /** @var RatesDTO $dto */
-        $dto = $this->jsonMapper->map($data, new RatesDTO());
-
-        return $dto->rates[$transaction->getCurrency()] ?? null;
+        return json_decode($json);
     }
 }

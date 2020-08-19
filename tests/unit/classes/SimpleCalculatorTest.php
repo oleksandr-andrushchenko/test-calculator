@@ -75,11 +75,10 @@ class SimpleCalculatorTest extends TestCase
         /** @var MockObject|BinProviderInterface $binProvider */
         $binProvider = $this->createMock(BinProviderInterface::class);
 
-        $i = 0;
-        foreach ($getCountry as $pair) {
+        foreach ($getCountry as $i => $pair) {
             [$transaction, $country] = $pair;
 
-            $binProvider->expects($this->at($i++))
+            $binProvider->expects($this->at($i))
                 ->method('getCountry')
                 ->with($transaction)
                 ->willReturn($country);
@@ -88,11 +87,10 @@ class SimpleCalculatorTest extends TestCase
         /** @var MockObject|RateProviderInterface $rateProvider */
         $rateProvider = $this->createMock(RateProviderInterface::class);
 
-        $i = 0;
-        foreach ($getRate as $pair) {
+        foreach ($getRate as $i => $pair) {
             [$transaction, $rate] = $pair;
 
-            $rateProvider->expects($this->at($i++))
+            $rateProvider->expects($this->at($i))
                 ->method('getRate')
                 ->with($transaction)
                 ->willReturn($rate);
