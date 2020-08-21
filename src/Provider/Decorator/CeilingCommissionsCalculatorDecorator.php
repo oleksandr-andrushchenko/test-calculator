@@ -39,7 +39,9 @@ class CeilingCommissionsCalculatorDecorator implements CalculatorInterface
     public function getCommissions(): array
     {
         return array_map(function (float $commission) {
-            return round($commission, $this->precision);
+            $coefficient = pow(10, $this->precision);
+
+            return ceil($commission * $coefficient) / $coefficient;
         }, $this->calculator->getCommissions());
     }
 }
